@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ELG 201 – Quiz (Module 2 & 3)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --muted:#93a4c7;
+      --text:#e8eefc;
+      --good:#2ee59d;
+      --bad:#ff5c7a;
+      --accent:#7aa8ff;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Cairo", sans-serif;
+      background: radial-gradient(1200px 700px at 70% -10%, rgba(122,168,255,.25), transparent 55%),
+                  radial-gradient(900px 600px at 10% 0%, rgba(46,229,157,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.6;
+    }
+    header{
+      padding:24px 16px 10px;
+      max-width:1000px;
+      margin:0 auto;
+    }
+    .title{
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+    }
+    h1{margin:0; font-size:22px}
+    .sub{color:var(--muted); margin-top:6px; font-size:14px}
+    .wrap{
+      max-width:1000px;
+      margin:0 auto;
+      padding:12px 16px 40px;
+    }
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      padding:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      margin:12px 0 18px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:rgba(0,0,0,.12);
+      color:var(--muted);
+      font-size:13px;
+      user-select:none;
+    }
+    .pill b{color:var(--text)}
+    .btn{
+      appearance:none; border:1px solid var(--border); background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:.15s transform, .15s background;
+      font-weight:600;
+    }
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .btn:active{transform:scale(.98)}
+    .btn.primary{border-color:rgba(122,168,255,.45); background:rgba(122,168,255,.16)}
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+    @media(min-width:860px){
+      .grid{grid-template-columns: 1fr 1fr;}
+    }
+    .card{
+      position:relative;
+      padding:16px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .meta{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:10px;
+    }
+    .tag{
+      border:1px solid var(--border);
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(0,0,0,.10);
+    }
+    .q{
+      font-size:16px;
+      margin:0 0 10px;
+    }
+    .choices{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .choice{
+      display:flex; gap:10px; align-items:flex-start;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.12);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      transition:.12s transform, .12s background, .12s border-color;
+      user-select:none;
+    }
+    .choice:hover{background:rgba(0,0,0,.18)}
+    .choice:active{transform:scale(.99)}
+    .choice input{margin-top:3px}
+    .choice.correct{
+      border-color: rgba(46,229,157,.55);
+      background: rgba(46,229,157,.14);
+    }
+    .choice.wrong{
+      border-color: rgba(255,92,122,.55);
+      background: rgba(255,92,122,.12);
+    }
+    .result{
+      margin-top:12px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.14);
+      display:none;
+    }
+    .result.show{display:block}
+    .result .status{
+      font-weight:800;
+      margin-bottom:6px;
+    }
+    .status.good{color:var(--good)}
+    .status.bad{color:var(--bad)}
+    .explain{
+      color:var(--text);
+      margin:6px 0 0;
+      font-size:14px;
+    }
+    .page{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .footer{
+      margin-top:16px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    /* Celebration (confetti) */
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+      display:none;
+    }
+    .confetti.show{display:block}
+    .confetti .p{
+      position:absolute;
+      width:10px; height:14px;
+      opacity:.95;
+      border-radius:3px;
+      top:-20px;
+      animation: fall linear forwards;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,.25));
+    }
+    @keyframes fall{
+      to{
+        transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot));
+        opacity: 1;
+      }
+    }
+    .toast{
+      position:fixed;
+      left:16px;
+      bottom:16px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(46,229,157,.45);
+      background:rgba(46,229,157,.12);
+      color:var(--text);
+      box-shadow:var(--shadow);
+      display:none;
+      z-index: 10000;
+      font-weight:700;
+    }
+    .toast.show{display:block}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <div>
+        <h1>اختبار ELG 201 (Modules 2 & 3) — اختيار من متعدد</h1>
+        <div class="sub">يعرض الإجابة الصحيحة + الشرح + رقم صفحة الدرس بعد الإجابة، مع احتفالية بسيطة عند الإجابة الصحيحة.</div>
+      </div>
+      <button class="btn primary" id="resetBtn">إعادة المحاولة</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="pill">النتيجة: <b id="score">0</b> / <b id="total">0</b></div>
+      <div class="pill">المحاولات: <b id="attempts">0</b></div>
+      <div class="pill">تم الحل: <b id="answered">0</b></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="showAllBtn">إظهار الشروحات لكل الأسئلة</button>
+        <button class="btn" id="hideAllBtn">إخفاء الشروحات</button>
+      </div>
+    </div>
+
+    <div class="grid" id="quiz"></div>
+
+    <div class="footer">
+      ملاحظة: أرقام الصفحات تعتمد على ملفي PDF المرفوعين لديك (Module 2 و Module 3).
+    </div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+  <div class="toast" id="toast">إجابة صحيحة! 🎉</div>
+
+  <script>
+    // =========================
+    // Question Bank (Modules 2 & 3) – NO LISTENING
+    // Each question includes: module, skill, page, explanation.
+    // Pages reference the uploaded PDFs:
+    // - Module 2: vocab/reading/grammar present simple (pages like 10,12,15,23-27)
+    // - Module 3: vocab/reading/grammar passive (pages like 8-14,20-21)
+    // =========================
+
+    const QUESTIONS = [
+      // -------- Vocabulary (Module 2) --------
+      {
+        id: "m2-v1",
+        module: "Module 2",
+        skill: "Vocabulary",
+        page: 10,
+        q: "What is a “prompt”?",
+        choices: ["A machine that can do tasks", "A message typed by the user", "A storage space", "A security lock"],
+        correctIndex: 1,
+        explain: "In Module 2 vocabulary, a prompt is defined as the message/input that the user types for the AI to respond to."
+      },
+      {
+        id: "m2-v2",
+        module: "Module 2",
+        skill: "Vocabulary",
+        page: 10,
+        q: "“Generate” means:",
+        choices: ["Delete something", "Create something new", "Freeze an app", "Store data"],
+        correctIndex: 1,
+        explain: "Module 2 vocabulary defines generate as ‘to create something new’."
+      },
+      {
+        id: "m2-v3",
+        module: "Module 2",
+        skill: "Vocabulary",
+        page: 10,
+        q: "A “chatbot” is:",
+        choices: ["A computer program that talks to users", "A smart plug", "A Wi-Fi signal", "A version number"],
+        correctIndex: 0,
+        explain: "Module 2 vocabulary: chatbot = a computer program that talks to users."
+      },
+      {
+        id: "m2-v4",
+        module: "Module 2",
+        skill: "Vocabulary",
+        page: 11,
+        q: "The AI model uses ______ to learn.",
+        choices: ["Battery", "Data", "Camera", "Bluetooth"],
+        correctIndex: 1,
+        explain: "In Module 2 vocabulary practice, the sentence is: ‘The AI model uses data to learn.’"
+      },
+
+      // -------- Vocabulary (Module 3) --------
+      {
+        id: "m3-v1",
+        module: "Module 3",
+        skill: "Vocabulary",
+        page: 8,
+        q: "“Storage” refers to:",
+        choices: ["Electricity", "Memory", "Speed"],
+        correctIndex: 1,
+        explain: "Module 3 vocabulary practice: storage refers to memory."
+      },
+      {
+        id: "m3-v2",
+        module: "Module 3",
+        skill: "Vocabulary",
+        page: 8,
+        q: "A “feature” is:",
+        choices: ["A function", "A bug", "A password"],
+        correctIndex: 0,
+        explain: "Module 3 vocabulary practice: a feature is a function."
+      },
+      {
+        id: "m3-v3",
+        module: "Module 3",
+        skill: "Vocabulary",
+        page: 8,
+        q: "“Configure” means:",
+        choices: ["Delete", "Set up", "Search"],
+        correctIndex: 1,
+        explain: "Module 3 vocabulary practice: configure means set up."
+      },
+      {
+        id: "m3-v4",
+        module: "Module 3",
+        skill: "Vocabulary",
+        page: 8,
+        q: "“Interface” means:",
+        choices: ["Hardware inside", "User control screen", "Virus"],
+        correctIndex: 1,
+        explain: "Module 3 vocabulary practice: interface refers to the user control screen."
+      },
+
+      // -------- Reading (Module 3: Smart Home) --------
+      {
+        id: "m3-r1",
+        module: "Module 3",
+        skill: "Reading",
+        page: 9,
+        q: "In a smart home, devices communicate through a:",
+        choices: ["Battery pack", "Central automation hub", "Keyboard", "Voltage meter"],
+        correctIndex: 1,
+        explain: "The passage explains that all devices communicate through a central automation hub, acting as the ‘brain’ of the home."
+      },
+      {
+        id: "m3-r2",
+        module: "Module 3",
+        skill: "Reading",
+        page: 10,
+        q: "Smart homes use cloud-based analysis mainly to:",
+        choices: ["Learn user habits", "Delete all files", "Increase screen brightness", "Remove Wi-Fi"],
+        correctIndex: 0,
+        explain: "The passage says smart homes go beyond automation by using cloud-based analysis to learn user habits."
+      },
+      {
+        id: "m3-r3",
+        module: "Module 3",
+        skill: "Reading",
+        page: 10,
+        q: "In smart systems, data like videos and sensor logs are:",
+        choices: ["Printed and stored locally", "Encrypted and stored securely in cloud servers", "Deleted every hour", "Shared publicly"],
+        correctIndex: 1,
+        explain: "The text states that captured data is encrypted and stored securely in cloud servers for safety and privacy."
+      },
+
+      // -------- Reading (Module 3: Mobile OS) --------
+      {
+        id: "m3-r4",
+        module: "Module 3",
+        skill: "Reading",
+        page: 12,
+        q: "When an app opens, the OS allocates:",
+        choices: ["Colors", "Memory", "Wallpaper", "Volume"],
+        correctIndex: 1,
+        explain: "The passage explains that the OS allocates memory and processing power when an app runs."
+      },
+      {
+        id: "m3-r5",
+        module: "Module 3",
+        skill: "Reading",
+        page: 13,
+        q: "The OS switches networks automatically when:",
+        choices: ["The signal becomes weak", "The battery is full", "The screen is locked", "The user sleeps"],
+        correctIndex: 0,
+        explain: "The passage states the OS can switch networks automatically when a signal becomes weak to prevent interruptions."
+      },
+      {
+        id: "m3-r6",
+        module: "Module 3",
+        skill: "Reading",
+        page: 13,
+        q: "App permission systems mainly protect:",
+        choices: ["Wallpaper quality", "Privacy and sensitive information", "Speaker volume", "App icons"],
+        correctIndex: 1,
+        explain: "The text explains permissions let users control access (camera, mic, location, contacts) to protect privacy."
+      },
+
+      // -------- Reading (Module 2) --------
+      {
+        id: "m2-r1",
+        module: "Module 2",
+        skill: "Reading",
+        page: 12,
+        q: "Generative AI helps students by:",
+        choices: ["Cooking food", "Explaining ideas", "Driving cars", "Fixing hardware"],
+        correctIndex: 1,
+        explain: "Module 2 reading says students write prompts and the AI generates explanations; it also helps with study plans and answers."
+      },
+      {
+        id: "m2-r2",
+        module: "Module 2",
+        skill: "Reading",
+        page: 12,
+        q: "Creative apps allow users to generate:",
+        choices: ["Electricity", "Images, short stories, or designs", "Passwords only", "Batteries"],
+        correctIndex: 1,
+        explain: "The reading states creative apps generate images/stories/designs by typing a few words."
+      },
+      {
+        id: "m2-r3",
+        module: "Module 2",
+        skill: "Reading",
+        page: 15,
+        q: "In workplaces, AI can:",
+        choices: ["Translate messages and write simple emails", "Replace all teachers", "Always be correct", "Stop network switching"],
+        correctIndex: 0,
+        explain: "Module 2 reading mentions AI writes simple emails, translates messages, and creates short reports."
+      },
+      {
+        id: "m2-r4",
+        module: "Module 2",
+        skill: "Reading",
+        page: 15,
+        q: "A key limitation of AI mentioned in the reading is that it can:",
+        choices: ["Never make mistakes", "Misunderstand prompts or generate incorrect information", "Work without data", "Stop updates"],
+        correctIndex: 1,
+        explain: "The reading warns that AI can misunderstand prompts or produce incorrect information, so users must review output."
+      },
+
+      // -------- Grammar (Module 2: Present Simple) --------
+      {
+        id: "m2-g1",
+        module: "Module 2",
+        skill: "Grammar (Present Simple)",
+        page: 23,
+        q: "Choose the correct sentence (Present Simple):",
+        choices: ["AI generate answers.", "AI generates answers.", "AI generating answers.", "AI generated answers."],
+        correctIndex: 1,
+        explain: "Present Simple affirmative: Subject + base verb (+s/es for he/she/it). ‘AI’ = it → generates."
+      },
+      {
+        id: "m2-g2",
+        module: "Module 2",
+        skill: "Grammar (Present Simple)",
+        page: 25,
+        q: "Choose the correct negative form:",
+        choices: ["Chatbots not understand feelings.", "Chatbots do not understand feelings.", "Chatbots does not understands feelings.", "Chatbots not understands feelings."],
+        correctIndex: 1,
+        explain: "Present Simple negative: Subject + do/does not + base verb. Plural ‘chatbots’ → do not understand."
+      },
+      {
+        id: "m2-g3",
+        module: "Module 2",
+        skill: "Grammar (Present Simple)",
+        page: 26,
+        q: "Choose the correct Yes/No question:",
+        choices: ["Does AI helps students?", "Do AI help students?", "Does AI help students?", "Is AI help students?"],
+        correctIndex: 2,
+        explain: "Yes/No questions in Present Simple: Does + subject (he/she/it) + base verb. Correct: Does AI help students?"
+      },
+      {
+        id: "m2-g4",
+        module: "Module 2",
+        skill: "Grammar (Present Simple)",
+        page: 28,
+        q: "Fill in: ChatGPT ______ explanations.",
+        choices: ["give", "gives", "giving", "gave"],
+        correctIndex: 1,
+        explain: "Third-person singular in Present Simple takes -s: ChatGPT gives."
+      },
+
+      // -------- Grammar (Module 3: Passive Voice) --------
+      {
+        id: "m3-g1",
+        module: "Module 3",
+        skill: "Grammar (Passive)",
+        page: 20,
+        q: "Choose the correct passive sentence:",
+        choices: ["The system stores data in the cloud.", "Data is stored in the cloud.", "Data store in the cloud.", "Data stored the cloud."],
+        correctIndex: 1,
+        explain: "Passive form shown in Module 3: Object + is/are + past participle → Data is stored."
+      },
+      {
+        id: "m3-g2",
+        module: "Module 3",
+        skill: "Grammar (Passive)",
+        page: 20,
+        q: "Choose the correct passive form:",
+        choices: ["Updates are installed automatically.", "Updates install automatically.", "Updates is installed automatically.", "Updates are install automatically."],
+        correctIndex: 0,
+        explain: "Plural ‘updates’ → are + past participle (installed)."
+      },
+      {
+        id: "m3-g3",
+        module: "Module 3",
+        skill: "Grammar (Passive)",
+        page: 21,
+        q: "Change to passive: The technician fixes the issue.",
+        choices: ["The issue fixes the technician.", "The issue is fixed by the technician.", "The issue is fix by the technician.", "The issue fixed by the technician is."],
+        correctIndex: 1,
+        explain: "Passive: Object (the issue) + is + fixed + by + doer."
+      }
+    ];
+
+    // =========================
+    // Rendering
+    // =========================
+    const elQuiz = document.getElementById("quiz");
+    const elScore = document.getElementById("score");
+    const elTotal = document.getElementById("total");
+    const elAttempts = document.getElementById("attempts");
+    const elAnswered = document.getElementById("answered");
+    const resetBtn = document.getElementById("resetBtn");
+    const showAllBtn = document.getElementById("showAllBtn");
+    const hideAllBtn = document.getElementById("hideAllBtn");
+
+    const state = {
+      attempts: 0,
+      answered: new Set(),
+      correct: new Set(),
+      revealedAll: false,
+    };
+
+    elTotal.textContent = String(QUESTIONS.length);
+
+    function updateStats(){
+      elAttempts.textContent = String(state.attempts);
+      elAnswered.textContent = String(state.answered.size);
+      elScore.textContent = String(state.correct.size);
+    }
+
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    }
+
+    function render(){
+      elQuiz.innerHTML = "";
+      QUESTIONS.forEach((item, idx) => {
+        const card = document.createElement("section");
+        card.className = "card";
+        card.id = "card-" + item.id;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.innerHTML = `
+          <span class="tag">سؤال #${idx+1}</span>
+          <span class="tag">${escapeHtml(item.module)}</span>
+          <span class="tag">${escapeHtml(item.skill)}</span>
+        `;
+
+        const q = document.createElement("h2");
+        q.className = "q";
+        q.textContent = item.q;
+
+        const choices = document.createElement("div");
+        choices.className = "choices";
+
+        item.choices.forEach((c, cIdx) => {
+          const row = document.createElement("label");
+          row.className = "choice";
+          row.setAttribute("data-qid", item.id);
+          row.setAttribute("data-cidx", String(cIdx));
+
+          row.innerHTML = `
+            <input type="radio" name="q-${item.id}" aria-label="اختيار ${cIdx+1}">
+            <div>${escapeHtml(c)}</div>
+          `;
+
+          row.addEventListener("click", (e) => {
+            e.preventDefault();
+            onAnswer(item.id, cIdx);
+          });
+
+          choices.appendChild(row);
+        });
+
+        const result = document.createElement("div");
+        result.className = "result";
+        result.id = "result-" + item.id;
+        result.innerHTML = `
+          <div class="status" id="status-${item.id}"></div>
+          <div class="explain" id="explain-${item.id}"></div>
+          <div class="page" id="page-${item.id}"></div>
+        `;
+
+        card.appendChild(meta);
+        card.appendChild(q);
+        card.appendChild(choices);
+        card.appendChild(result);
+
+        elQuiz.appendChild(card);
+
+        // If user previously answered and we rerender
+        if (state.answered.has(item.id) || state.revealedAll){
+          reveal(item.id, state.lastPicked?.[item.id]);
+        }
+      });
+
+      updateStats();
+    }
+
+    // =========================
+    // Answer logic
+    // =========================
+    state.lastPicked = {};
+
+    function onAnswer(qid, chosenIndex){
+      state.attempts += 1;
+      state.answered.add(qid);
+      state.lastPicked[qid] = chosenIndex;
+
+      const q = QUESTIONS.find(x => x.id === qid);
+      const isCorrect = chosenIndex === q.correctIndex;
+
+      if (isCorrect) state.correct.add(qid);
+      else state.correct.delete(qid);
+
+      reveal(qid, chosenIndex);
+
+      updateStats();
+
+      if (isCorrect) celebrate();
+    }
+
+    function reveal(qid, chosenIndex){
+      const q = QUESTIONS.find(x => x.id === qid);
+      const card = document.getElementById("card-" + qid);
+      if (!card) return;
+
+      // mark choices
+      const choiceEls = card.querySelectorAll(".choice");
+      choiceEls.forEach((el) => {
+        const cIdx = Number(el.getAttribute("data-cidx"));
+        el.classList.remove("correct","wrong");
+        // Always show the correct answer when revealed
+        if (cIdx === q.correctIndex) el.classList.add("correct");
+        // If user picked and it's wrong, mark wrong selection
+        if (chosenIndex !== undefined && chosenIndex !== null){
+          if (cIdx === chosenIndex && chosenIndex !== q.correctIndex) el.classList.add("wrong");
+          // reflect radio checked
+          const radio = el.querySelector('input[type="radio"]');
+          radio.checked = (cIdx === chosenIndex);
+        }
+        // Disable pointer if already answered (to prevent changing answers)
+        if (state.answered.has(qid)) {
+          el.style.cursor = "default";
+        }
+      });
+
+      const result = document.getElementById("result-" + qid);
+      const status = document.getElementById("status-" + qid);
+      const explain = document.getElementById("explain-" + qid);
+      const page = document.getElementById("page-" + qid);
+
+      const isCorrect = chosenIndex === q.correctIndex;
+
+      result.classList.add("show");
+      status.textContent = isCorrect ? "✅ إجابة صحيحة" : "❌ إجابة غير صحيحة";
+      status.className = "status " + (isCorrect ? "good" : "bad");
+
+      // show explanation + page
+      explain.textContent = "الشرح: " + q.explain;
+      page.textContent = `مرجع الدرس: ${q.module} — صفحة ${q.page}`;
+
+      // If "show all" is active, reveal even unanswered
+      if (state.revealedAll && !state.answered.has(qid)){
+        status.textContent = "ℹ️ لم تجب بعد (تم إظهار الحل)";
+        status.className = "status";
+      }
+    }
+
+    // =========================
+    // Celebration
+    // =========================
+    const confetti = document.getElementById("confetti");
+    const toast = document.getElementById("toast");
+
+    function rand(min,max){ return Math.random()*(max-min)+min; }
+
+    function celebrate(){
+      // Toast
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 900);
+
+      // Confetti
+      confetti.innerHTML = "";
+      confetti.classList.add("show");
+
+      const pieces = 38;
+      for (let i=0; i<pieces; i++){
+        const p = document.createElement("div");
+        p.className = "p";
+        // random position & animation
+        const left = rand(0, 100);
+        const dur = rand(0.9, 1.6);
+        const dx = rand(-30, 30) + "vw";
+        const rot = rand(-720, 720) + "deg";
+        const delay = rand(0, 0.15);
+
+        // random color (not fixed, generated)
+        const hue = Math.floor(rand(0, 360));
+        p.style.background = `hsl(${hue} 90% 60%)`;
+        p.style.left = left + "vw";
+        p.style.animationDuration = dur + "s";
+        p.style.animationDelay = delay + "s";
+        p.style.setProperty("--dx", dx);
+        p.style.setProperty("--rot", rot);
+
+        confetti.appendChild(p);
+      }
+
+      // Auto-hide
+      setTimeout(()=>{
+        confetti.classList.remove("show");
+        confetti.innerHTML = "";
+      }, 1700);
+    }
+
+    // =========================
+    // Buttons
+    // =========================
+    resetBtn.addEventListener("click", () => {
+      state.attempts = 0;
+      state.answered = new Set();
+      state.correct = new Set();
+      state.lastPicked = {};
+      state.revealedAll = false;
+      render();
+      updateStats();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+
+    showAllBtn.addEventListener("click", () => {
+      state.revealedAll = true;
+      QUESTIONS.forEach(q => reveal(q.id, state.lastPicked[q.id]));
+      updateStats();
+    });
+
+    hideAllBtn.addEventListener("click", () => {
+      state.revealedAll = false;
+      // Hide explanations only for unanswered; keep answered visible
+      QUESTIONS.forEach(q => {
+        if (!state.answered.has(q.id)){
+          const res = document.getElementById("result-" + q.id);
+          if (res) res.classList.remove("show");
+          const card = document.getElementById("card-" + q.id);
+          if (!card) return;
+          const choiceEls = card.querySelectorAll(".choice");
+          choiceEls.forEach(el => el.classList.remove("correct","wrong"));
+        }
+      });
+      updateStats();
+    });
+
+    // Initial render
+    render();
+    updateStats();
+  </script>
+</body>
+</html>
